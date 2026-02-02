@@ -36,7 +36,8 @@ class ArtnetPacket:
     @staticmethod
     def global_dict_to_packets(
         global_dmx: dict[int, int],
-        sequence_start: int = 1
+        sequence_start: int = 1,
+        universe_offset: int = 0
     ):
         """
         Convert a global-channel DMX dict into ArtDMX packets.
@@ -64,7 +65,7 @@ class ArtnetPacket:
         sequence = sequence_start
         for universe in sorted(universes.keys()):
             packet = ArtnetPacket(
-                universe=universe,
+                universe=universe + universe_offset,
                 data=bytes(universes[universe]),
                 sequence=sequence
             )

@@ -13,6 +13,7 @@ class UDPClientToggleModal(Operator):
     udp_client_active_prop_name = "udp_client_active"
     udp_target_ip_prop_name = "udp_target_ip"
     udp_target_port_prop_name = "udp_target_port"
+    universe_offset_prop_name = "universe_offset"
 
     @staticmethod
     def get_udp_client_state(context: Context):
@@ -25,6 +26,10 @@ class UDPClientToggleModal(Operator):
     @staticmethod
     def get_target_port(context: Context):
         return getattr(context.scene, UDPClientToggleModal.udp_target_port_prop_name, 6454)
+    
+    @staticmethod
+    def get_universe_offset(context: Context):
+        return getattr(context.scene, UDPClientToggleModal.universe_offset_prop_name, 0)
     
     def execute(self, context: Context):
         """Toggle UDP client state and exit"""
@@ -72,6 +77,15 @@ class UDPClientToggleModal(Operator):
             min=1,
             max=65535
         )
+        
+        # Add scene property for universe offset
+        bpy.types.Scene.universe_offset = IntProperty(
+            name="Universe Offset",
+            description="Offset to add to DMX universe numbers when sending to ArtNet",
+            default=0,
+            min=0,
+            max=32767
+        )
 
     @staticmethod
     def unregister():
@@ -83,3 +97,5 @@ class UDPClientToggleModal(Operator):
             del bpy.types.Scene.udp_target_ip
         if hasattr(bpy.types.Scene, UDPClientToggleModal.udp_target_port_prop_name):
             del bpy.types.Scene.udp_target_port
+        if hasattr(bpy.types.Scene, UDPClientToggleModal.universe_offset_prop_name):
+            del bpy.types.Scene.universe_offset

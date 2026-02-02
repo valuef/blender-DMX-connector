@@ -25,5 +25,8 @@ class GlobalControlPanel(Panel):
         row.prop(scene, "udp_target_ip", text="Target IP")
         row.prop(scene, "udp_target_port", text="Port")
         
+        # Universe offset input
+        box.prop(scene, "universe_offset", text="Universe Offset")
+        
         # Toggle button
         box.operator(sender_modal.UDPClientToggleModal.bl_idname, text=sender_modal.UDPClientToggleModal.dynamic_text(context))
