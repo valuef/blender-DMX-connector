@@ -5,7 +5,7 @@ from bthl.tasks.task import Task
 import random
 from bthl.api.dmxdata import dmx_buffer
 from bthl.operator.sender_modal import UDPClientToggleModal
-from bthl.types.artnetpacket import ArtnetPacket
+from bthl.types.ArtNet import ArtnetDMXPacket, ArtnetPollPacket
 
 def send_udp_packet(ip, port, message):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -29,7 +29,7 @@ def send(scene, depsgraph):
     target_port = UDPClientToggleModal.get_target_port(bpy.context)
     universe_offset = UDPClientToggleModal.get_universe_offset(bpy.context)
     
-    messages = ArtnetPacket.global_dict_to_packets(dmx_buffer, universe_offset=universe_offset)
+    messages = ArtnetDMXPacket.global_dict_to_packets(dmx_buffer, universe_offset=universe_offset)
 
     for message in messages:
         send_udp_packet(target_ip, target_port, message.pack())
