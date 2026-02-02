@@ -5,6 +5,7 @@ from bthl.tasks.task import Task
 import random
 from bthl.api.dmxdata import dmx_buffer
 from bthl.operator.sender_modal import UDPClientToggleModal
+from bthl.types.artnetpacket import ArtnetPacket
 
 def send_udp_packet(ip, port, message):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -16,19 +17,6 @@ def send_udp_packet(ip, port, message):
     finally:
         sock.close()
 
-def generateMessage(dmx_buffer):
-    #standard is
-    #short,byte for each channel
-    bmessage = []
-    #iterate over each channel in order
-    for channel in sorted(dmx_buffer.keys()):
-        value = dmx_buffer[channel]
-        #now encode the channel as short
-        bmessage += channel.to_bytes(2, byteorder='big')
-        #now encode the value as byte
-        bmessage += value.to_bytes(1, byteorder='big')
-    return bytes(bmessage)
-
 def send(scene, depsgraph):
     #print("Sending DMX data via UDP...")
     #we should only send if the udp client is active
@@ -36,27 +24,15 @@ def send(scene, depsgraph):
         #print("UDP Client is not active, skipping send.")
         return
     
-    target_ip = "127.0.0.1"
-    target_port = 7000
-
-    fragments = []
-    fragmentation_size = 3070 #max size of a udp packet roughly
-
-    #loop over every dict object, fragmenting if necessary
-    #all we need to do is split the dictionary into smaller dictionaries
-    #print(f"Total channels to send: {len(dmx_buffer)}")
-    for i in range(0, len(dmx_buffer), fragmentation_size):
-        fragment = dict(list(dmx_buffer.items())[i:i+fragmentation_size])
-        fragments.append(fragment)
-        #print(f"Prepared fragment with {len(fragment)} channels.")
+    # Get configurable target IP and port
+    target_ip = UDPClientToggleModal.get_target_ip(bpy.context)
+    target_port = UDPClientToggleModal.get_target_port(bpy.context)
     
-    for fragment in fragments:
-        message = generateMessage(fragment)
-        #print(f"Sending fragment of size {len(message)} bytes.")
-        #print first channel
-        #print(message)
-        send_udp_packet(target_ip, target_port, message)
-        time.sleep(0.001)  # brief pause to avoid overwhelming the network
+    messages = ArtnetPacket.global_dict_to_packets(dmx_buffer)
+
+    for message in messages:
+        send_udp_packet(target_ip, target_port, message.pack())
+        #time.sleep(0.001)  # brief pause to avoid overwhelming the network
     
     dmx_buffer.clear()
 

@@ -14,7 +14,16 @@ class GlobalControlPanel(Panel):
         layout = self.layout
         if layout is None:
             return
-        #scene = context.scene
+        scene = context.scene
 
-        #render udp client
-        layout.operator(sender_modal.UDPClientToggleModal.bl_idname, text=sender_modal.UDPClientToggleModal.dynamic_text(context))
+        # UDP Client controls
+        box = layout.box()
+        box.label(text="UDP Client Settings")
+        
+        # Target IP and Port inputs
+        row = box.row()
+        row.prop(scene, "udp_target_ip", text="Target IP")
+        row.prop(scene, "udp_target_port", text="Port")
+        
+        # Toggle button
+        box.operator(sender_modal.UDPClientToggleModal.bl_idname, text=sender_modal.UDPClientToggleModal.dynamic_text(context))
