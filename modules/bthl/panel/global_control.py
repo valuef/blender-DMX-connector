@@ -4,13 +4,13 @@ import bthl.operator.receiver_modal as receiver_modal
 from bthl.tasks.receiver import get_last_timecode_frame
 
 class GlobalControlPanel(Panel):
-    bl_label = "HNode Connector"
+    bl_label = "DMX Connector"
     bl_idname = "OBJECT_PT_main_panel"
 
     #Specific controls for the sidebar in the 3d view
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'HNode Connector'
+    bl_category = 'DMX Connector'
 
     def draw(self, context: Context):
         layout = self.layout

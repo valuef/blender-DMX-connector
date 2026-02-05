@@ -1,5 +1,5 @@
 bl_info = {
-    "name": "Blender to HNode link",
+    "name": "Blender DMX Connector",
     "blender": (4, 5, 0),
     "category": "Object",
 }
