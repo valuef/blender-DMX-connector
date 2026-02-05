@@ -99,3 +99,4 @@ class UDPClientToggleModal(Operator):
             del bpy.types.Scene.udp_target_port
         if hasattr(bpy.types.Scene, UDPClientToggleModal.universe_offset_prop_name):
             del bpy.types.Scene.universe_offset
+
