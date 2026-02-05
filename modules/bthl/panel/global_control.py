@@ -36,6 +36,7 @@ class GlobalControlPanel(Panel):
         # MIDI Timecode controls
         timecode_box = layout.box()
         timecode_box.label(text="MIDI Timecode Settings")
+        timecode_box.label(text="Requires HNode MTC Exporter", icon='INFO')
         
         # Enable/disable timecode receiving
         timecode_box.prop(scene, "timecode_receive_enabled", text="Receive MIDI Timecode")
