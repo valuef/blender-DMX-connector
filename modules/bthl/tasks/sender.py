@@ -7,11 +7,11 @@ from bthl.api.dmxdata import dmx_buffer
 from bthl.operator.sender_modal import UDPClientToggleModal
 from bthl.types.ArtNet import ArtnetDMXPacket, ArtnetPollPacket
 
-def send_udp_packet(ip, port, message):
+def send_udp_packet(ip, port, message, id = 0):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         sock.sendto(message, (ip, port))
-        print(f"Sent message to {ip}:{port}")
+        print(f"Sent message to {ip}:{port} (ID: {id})")
     except Exception as e:
         print(f"Error sending message: {e}")
     finally:
@@ -31,8 +31,8 @@ def send(scene, depsgraph):
     
     messages = ArtnetDMXPacket.global_dict_to_packets(dmx_buffer, universe_offset=universe_offset)
 
-    for message in messages:
-        send_udp_packet(target_ip, target_port, message.pack())
+    for id, message in enumerate(messages):
+        send_udp_packet(target_ip, target_port, message.pack(), id=id)
         #time.sleep(0.001)  # brief pause to avoid overwhelming the network
     
     dmx_buffer.clear()
