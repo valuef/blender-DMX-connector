@@ -4,9 +4,21 @@ import struct
 from mathutils import Vector, Quaternion, Euler
 
 def getPositionAsDMX(loc: Vector, range: int, bytesPerAxis: int = 1) -> bytearray:
+    #clamp the location to the specified range to avoid overflow
+    old_loc = loc.copy()
+    loc.x = max(min(loc.x, range), -range)
+    loc.y = max(min(loc.y, range), -range)
+    loc.z = max(min(loc.z, range), -range)
+
+    #check if we had to clamp
+    if loc != old_loc:
+        print(f"Warning: Location {old_loc} was out of range and has been clamped to {loc}")
+
     xscale = int(scale_number(loc.x, 0, (2**(8*bytesPerAxis))-1, -range, range))
     yscale = int(scale_number(loc.y, 0, (2**(8*bytesPerAxis))-1, -range, range))
     zscale = int(scale_number(loc.z, 0, (2**(8*bytesPerAxis))-1, -range, range))
+    #print("Position Values:", loc.x, loc.y, loc.z)
+    #print("DMX Position Scaled:", xscale, yscale, zscale)
     #now convert to bytes
     xbytes = struct.pack('>I', xscale)[-bytesPerAxis:]
     ybytes = struct.pack('>I', yscale)[-bytesPerAxis:]
