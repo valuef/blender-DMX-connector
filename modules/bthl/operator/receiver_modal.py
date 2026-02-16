@@ -35,6 +35,8 @@ class MIDITimecodeToggleModal(Operator):
 
     timecode_receive_enabled_prop_name = "timecode_receive_enabled"
     timecode_allow_timeline_move_prop_name = "timecode_allow_timeline_move"
+    timecode_port_prop_name = "timecode_port"
+    timecode_offset_frames_prop_name = "timecode_offset_frames"
 
     @staticmethod
     def get_timecode_receive_enabled(context: Context):
@@ -43,6 +45,14 @@ class MIDITimecodeToggleModal(Operator):
     @staticmethod
     def get_timecode_allow_timeline_move(context: Context):
         return getattr(context.scene, MIDITimecodeToggleModal.timecode_allow_timeline_move_prop_name, True)
+    
+    @staticmethod
+    def get_timecode_port(context: Context):
+        return getattr(context.scene, MIDITimecodeToggleModal.timecode_port_prop_name, 7001)
+    
+    @staticmethod
+    def get_timecode_offset_frames(context: Context):
+        return getattr(context.scene, MIDITimecodeToggleModal.timecode_offset_frames_prop_name, 0)
 
     @staticmethod
     def register():
@@ -59,6 +69,22 @@ class MIDITimecodeToggleModal(Operator):
             description="Allow moving the timeline freely if received timecode is not changing",
             default=True
         )
+        
+        bpy.types.Scene.timecode_port = IntProperty(
+            name="MIDI Timecode Port",
+            description="UDP port for receiving MIDI timecode data",
+            default=7001,
+            min=1,
+            max=65535
+        )
+        
+        bpy.types.Scene.timecode_offset_frames = IntProperty(
+            name="Timecode Offset (Frames)",
+            description="Offset timecode by this number of frames (positive for forward, negative for backward)",
+            default=0,
+            min=-9999,
+            max=9999
+        )
 
     @staticmethod
     def unregister():
@@ -68,3 +94,7 @@ class MIDITimecodeToggleModal(Operator):
             del bpy.types.Scene.timecode_receive_enabled
         if hasattr(bpy.types.Scene, MIDITimecodeToggleModal.timecode_allow_timeline_move_prop_name):
             del bpy.types.Scene.timecode_allow_timeline_move
+        if hasattr(bpy.types.Scene, MIDITimecodeToggleModal.timecode_port_prop_name):
+            del bpy.types.Scene.timecode_port
+        if hasattr(bpy.types.Scene, MIDITimecodeToggleModal.timecode_offset_frames_prop_name):
+            del bpy.types.Scene.timecode_offset_frames

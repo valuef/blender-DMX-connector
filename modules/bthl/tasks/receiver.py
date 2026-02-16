@@ -6,6 +6,7 @@ import random
 
 sock = None
 last_timecode_frame = None
+current_port = None
 
 def is_timecode_receive_enabled(scene) -> bool:
     """Check if timecode receiving is enabled for the given scene"""
@@ -19,8 +20,20 @@ def is_timecode_allow_timeline_move(scene) -> bool:
     prop_name = MIDITimecodeToggleModal.timecode_allow_timeline_move_prop_name
     return hasattr(scene, prop_name) and getattr(scene, prop_name)
 
+def get_timecode_port(scene) -> int:
+    """Get the configured timecode port for the given scene"""
+    from bthl.operator.receiver_modal import MIDITimecodeToggleModal
+    prop_name = MIDITimecodeToggleModal.timecode_port_prop_name
+    return getattr(scene, prop_name, 7001)
+
+def get_timecode_offset_frames(scene) -> int:
+    """Get the configured timecode offset in frames for the given scene"""
+    from bthl.operator.receiver_modal import MIDITimecodeToggleModal
+    prop_name = MIDITimecodeToggleModal.timecode_offset_frames_prop_name
+    return getattr(scene, prop_name, 0)
+
 def receive() -> float:
-    global sock
+    global sock, current_port
     update_rate = 0.001
     scene = bpy.context.scene
 
@@ -28,15 +41,28 @@ def receive() -> float:
         return update_rate
 
     receivebuffer_size = 64
+    port = get_timecode_port(scene)
+
+    # Check if we need to recreate the socket due to port change
+    if sock is not None and current_port != port:
+        sock.close()
+        sock = None
 
     #receive via udp socket
     if sock is None:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         #make the receive buffer small
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, receivebuffer_size)
-        #bind localhost on port 7001
-        sock.bind(("localhost", 7001))
-        sock.setblocking(False)
+        #bind to the configured port
+        try:
+            sock.bind(("localhost", port))
+            sock.setblocking(False)
+            current_port = port
+        except OSError as e:
+            print(f"Failed to bind socket to port {port}: {e}")
+            sock.close()
+            sock = None
+            return update_rate
 
     try:
         data, addr = sock.recvfrom(receivebuffer_size)
@@ -50,6 +76,10 @@ def receive() -> float:
         #convert the value to frames
         frame = frames
         frame += int((milliseconds / 1000) * fps)
+        
+        # Apply timecode offset
+        frame_offset = get_timecode_offset_frames(scene)
+        frame += frame_offset
         
         global last_timecode_frame
         #set the current frame of the scene
