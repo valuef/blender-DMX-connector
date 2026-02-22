@@ -1,11 +1,35 @@
 import socket
 import time
 import bpy
-from bthl.tasks.task import Task
-import random
-from bthl.api.dmxdata import dmx_buffer
 from bthl.operator.sender_modal import UDPClientToggleModal
 from bthl.types.ArtNet import ArtnetDMXPacket, ArtnetPollPacket
+from bthl.tasks.customproperties import update_custom_properties
+from bthl.tasks.task import Task
+from bthl.api.dmxdata import dmx_buffer
+
+def auto_send() -> float:
+    """Auto-send function that works like receiver.py"""
+    print("test")
+    try:
+        context = bpy.context
+        scene = context.scene
+        
+        # Check if auto-send is enabled and UDP client is active
+        if (not UDPClientToggleModal.get_auto_send_enabled(context) or 
+            not UDPClientToggleModal.get_udp_client_state(context)):
+            # Return a small interval to keep checking
+            return 0.1
+        
+        #trigger custom property serialization and then send
+        depsgraph = context.evaluated_depsgraph_get()
+        update_custom_properties(scene, depsgraph)
+        send(scene, depsgraph)
+            
+    except Exception as e:
+        print(f"Error in auto-send: {e}")
+    
+    # Return the configured interval for the next call
+    return UDPClientToggleModal.get_auto_send_interval(bpy.context)
 
 def send_udp_packet(ip, port, message, id = 0):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -43,5 +67,5 @@ class UDPClientTasks(Task):
 
         "frame_change_post": send,
 
-        "load_post": send,
+        "load_post": send
     }

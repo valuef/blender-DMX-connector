@@ -1,6 +1,6 @@
 import bpy
 from bpy.types import Operator, Context
-from bpy.props import BoolProperty, StringProperty, IntProperty
+from bpy.props import BoolProperty, StringProperty, IntProperty, FloatProperty
 from typing import TYPE_CHECKING
 
 class UDPClientToggleModal(Operator):
@@ -14,6 +14,8 @@ class UDPClientToggleModal(Operator):
     udp_target_ip_prop_name = "udp_target_ip"
     udp_target_port_prop_name = "udp_target_port"
     universe_offset_prop_name = "universe_offset"
+    auto_send_enabled_prop_name = "auto_send_enabled"
+    auto_send_interval_prop_name = "auto_send_interval"
 
     @staticmethod
     def get_udp_client_state(context: Context):
@@ -30,6 +32,14 @@ class UDPClientToggleModal(Operator):
     @staticmethod
     def get_universe_offset(context: Context):
         return getattr(context.scene, UDPClientToggleModal.universe_offset_prop_name, 0)
+    
+    @staticmethod
+    def get_auto_send_enabled(context: Context):
+        return getattr(context.scene, UDPClientToggleModal.auto_send_enabled_prop_name, False)
+    
+    @staticmethod
+    def get_auto_send_interval(context: Context):
+        return getattr(context.scene, UDPClientToggleModal.auto_send_interval_prop_name, 1.0)
     
     def execute(self, context: Context):
         """Toggle UDP client state and exit"""
@@ -86,6 +96,23 @@ class UDPClientToggleModal(Operator):
             min=0,
             max=32767
         )
+        
+        # Add scene properties for auto-send functionality
+        bpy.types.Scene.auto_send_enabled = BoolProperty(
+            name="Auto Send Enabled",
+            description="Enable automatic sending of ArtNet data at regular intervals",
+            default=False
+        )
+        
+        bpy.types.Scene.auto_send_interval = FloatProperty(
+            name="Auto Send Interval",
+            description="Interval in seconds between automatic ArtNet data sends",
+            default=1.0,
+            min=0.1,
+            max=60.0,
+            step=10,
+            precision=1
+        )
 
     @staticmethod
     def unregister():
@@ -99,4 +126,8 @@ class UDPClientToggleModal(Operator):
             del bpy.types.Scene.udp_target_port
         if hasattr(bpy.types.Scene, UDPClientToggleModal.universe_offset_prop_name):
             del bpy.types.Scene.universe_offset
+        if hasattr(bpy.types.Scene, UDPClientToggleModal.auto_send_enabled_prop_name):
+            del bpy.types.Scene.auto_send_enabled
+        if hasattr(bpy.types.Scene, UDPClientToggleModal.auto_send_interval_prop_name):
+            del bpy.types.Scene.auto_send_interval
 

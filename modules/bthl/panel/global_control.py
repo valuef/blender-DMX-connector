@@ -33,6 +33,20 @@ class GlobalControlPanel(Panel):
         # Toggle button
         box.operator(sender_modal.UDPClientToggleModal.bl_idname, text=sender_modal.UDPClientToggleModal.dynamic_text(context))
         
+        # Auto-send controls
+        auto_send_box = box.box()
+        auto_send_box.label(text="Auto Send Settings")
+        auto_send_box.prop(scene, "auto_send_enabled", text="Enable Auto Send")
+        
+        # Show interval control only when auto-send is enabled
+        if scene.auto_send_enabled:
+            auto_send_box.prop(scene, "auto_send_interval", text="Interval (seconds)")
+            # Show status when auto-send is active and UDP client is running
+            if scene.udp_client_active:
+                status_row = auto_send_box.row()
+                status_row.label(text="Auto-sending active", icon='PLAY')
+
+        
         # MIDI Timecode controls
         timecode_box = layout.box()
         timecode_box.label(text="MIDI Timecode Settings")

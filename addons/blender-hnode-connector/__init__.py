@@ -16,6 +16,7 @@ from bthl.operator.duplicate_property import OBJECT_OT_duplicate_custom_property
 from bthl.tasks.sender import UDPClientTasks
 from bthl.tasks.customproperties import CustomPropertiesTask
 from bthl.tasks.receiver import receive
+from bthl.tasks.sender import auto_send
 
 classes = {
     GlobalControlPanel,
@@ -41,7 +42,11 @@ def register():
     # Register MIDI timecode properties
     MIDITimecodeToggleModal.register()
     
+    # Register UDP client properties
+    UDPClientToggleModal.register()
+    
     bpy.app.timers.register(receive, persistent=True)
+    bpy.app.timers.register(auto_send, persistent=True)
 
 def unregister():
     for cls in classes:
@@ -52,4 +57,8 @@ def unregister():
     # Unregister MIDI timecode properties
     MIDITimecodeToggleModal.unregister()
     
+    # Unregister UDP client properties and cleanup timer
+    UDPClientToggleModal.unregister()
+    
     bpy.app.timers.unregister(receive)
+    bpy.app.timers.unregister(auto_send)

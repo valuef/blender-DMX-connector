@@ -143,5 +143,5 @@ class CustomPropertiesTask(Task):
     functions = {
         "depsgraph_update_post": update_custom_properties,
         "frame_change_post": update_custom_properties,
-        "load_post": update_custom_properties,
+        "load_post": update_custom_properties
     }
