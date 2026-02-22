@@ -112,9 +112,10 @@ def handleobjectproperties(object: bpy.types.Object):
 
                         #print(rotation.to_euler())
                         #pan is rotation around z axis
-                        pan = math.atan2(direction.y, direction.x)
+                        #rounding to truncate float imprecisions (observed as high as e-6)
+                        pan = math.atan2(round(direction.y, 3), round(direction.x, 3))
                         #tilt is rotation around x axis
-                        tilt = math.asin(direction.z)
+                        tilt = math.asin(round(direction.z, 3))
                         #wrap both around 360
                         pan = pan % math.radians(360)
                         tilt = tilt % math.radians(360)
