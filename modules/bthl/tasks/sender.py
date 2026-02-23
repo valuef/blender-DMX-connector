@@ -9,7 +9,7 @@ from bthl.api.dmxdata import dmx_buffer
 
 def auto_send() -> float:
     """Auto-send function that works like receiver.py"""
-    print("test")
+    #print("test")
     try:
         context = bpy.context
         scene = context.scene
