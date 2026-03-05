@@ -10,7 +10,7 @@ def convert_blender_quat_to_unity_quat(blender_quat: mathutils.Quaternion) -> ma
     """Converts a Blender Quaternion to a Unity Quaternion"""
     oq = blender_quat
     #rotate around the Z axis in blender first
-    initialfixrot = mathutils.Euler((math.radians(0),math.radians(0),math.radians(90)))
+    initialfixrot = mathutils.Euler((math.radians(0),math.radians(0),math.radians(90 + 180)))
     oq = initialfixrot.to_quaternion() @ oq
     
     
