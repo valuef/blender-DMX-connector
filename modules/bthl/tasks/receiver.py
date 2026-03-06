@@ -3,6 +3,7 @@ from bthl.tasks.task import Task
 import socket
 import struct
 import random
+import time
 
 sock = None
 last_timecode_frame = None
@@ -31,6 +32,12 @@ def get_timecode_offset_frames(scene) -> int:
     from bthl.operator.receiver_modal import MIDITimecodeToggleModal
     prop_name = MIDITimecodeToggleModal.timecode_offset_frames_prop_name
     return getattr(scene, prop_name, 0)
+
+def is_latency_compensation_enabled(scene) -> bool:
+    """Check if latency compensation is enabled for the given scene"""
+    from bthl.operator.receiver_modal import MIDITimecodeToggleModal
+    prop_name = MIDITimecodeToggleModal.timecode_latency_compensation_enabled_prop_name
+    return getattr(scene, prop_name, True)
 
 def receive() -> float:
     global sock, current_port
@@ -69,13 +76,24 @@ def receive() -> float:
         print(f"Received message from {addr}: {data}")
         #the data coming in is a signed long long in bytes, big endian
         milliseconds = int.from_bytes(data[0:4], byteorder='big', signed=True)
+
+        #UTC time is the next C# ulong
+        utcSentTime = int.from_bytes(data[4:12], byteorder='big', signed=False)
+
+        #calculate the delta, and thats what we will use to adjust the frame, this allows for compensation of latency between sender and receiver
+        if is_latency_compensation_enabled(scene):
+            currentUTCTime = int(time.time() * 1000)
+            latencyCompensation = currentUTCTime - utcSentTime
+            compensatedMilliseconds = milliseconds + latencyCompensation
+        else:
+            compensatedMilliseconds = milliseconds
         frames = data[4]
         
         #get the scene
         fps = scene.render.fps / scene.render.fps_base
         #convert the value to frames
         frame = frames
-        frame += int((milliseconds / 1000) * fps)
+        frame += int((compensatedMilliseconds / 1000) * fps)
         
         # Apply timecode offset
         frame_offset = get_timecode_offset_frames(scene)
