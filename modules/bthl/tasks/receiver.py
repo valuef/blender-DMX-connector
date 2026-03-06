@@ -8,6 +8,7 @@ import time
 sock = None
 last_timecode_frame = None
 current_port = None
+last_milliseconds = None
 
 def is_timecode_receive_enabled(scene) -> bool:
     """Check if timecode receiving is enabled for the given scene"""
@@ -77,17 +78,21 @@ def receive() -> float:
         #the data coming in is a signed long long in bytes, big endian
         milliseconds = int.from_bytes(data[0:4], byteorder='big', signed=True)
 
+        #frames is a single byte
+        frames = data[4]
+
         #UTC time is the next C# ulong
-        utcSentTime = int.from_bytes(data[4:12], byteorder='big', signed=False)
+        utcSentTime = int.from_bytes(data[5:13], byteorder='big', signed=False)
 
         #calculate the delta, and thats what we will use to adjust the frame, this allows for compensation of latency between sender and receiver
-        if is_latency_compensation_enabled(scene):
+        global last_milliseconds
+        if is_latency_compensation_enabled(scene) and milliseconds != last_milliseconds:
             currentUTCTime = int(time.time() * 1000)
             latencyCompensation = currentUTCTime - utcSentTime
             compensatedMilliseconds = milliseconds + latencyCompensation
         else:
             compensatedMilliseconds = milliseconds
-        frames = data[4]
+        last_milliseconds = milliseconds
         
         #get the scene
         fps = scene.render.fps / scene.render.fps_base
