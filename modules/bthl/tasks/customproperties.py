@@ -138,6 +138,10 @@ def update_custom_properties(scene: bpy.types.Scene, depsgraph: bpy.types.Depsgr
     for obj in bpy.data.objects:
         if obj.type in bad_obj_types:
             continue
+
+        #skip if in library
+        if obj.library is not None:
+            continue
         handleobjectproperties(obj)
 
 class CustomPropertiesTask(Task):
