@@ -64,8 +64,6 @@ def send(scene, depsgraph):
 class UDPClientTasks(Task):
     functions = {
         "depsgraph_update_post": send,
-
         "frame_change_post": send,
-
         "load_post": send
     }

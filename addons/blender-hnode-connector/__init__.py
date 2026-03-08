@@ -7,6 +7,7 @@ bl_info = {
 import bpy
 import inspect
 import sys
+from bthl.tasks.task import Task
 from bthl.panel.global_control import GlobalControlPanel
 from bthl.operator.sender_modal import UDPClientToggleModal
 from bthl.operator.receiver_modal import MIDITimecodeOperator, MIDITimecodeToggleModal
@@ -28,7 +29,22 @@ classes = {
     OBJECT_OT_duplicate_custom_property,
 }
 
+def fixorder(scene: bpy.types.Scene, depsgraph: bpy.types.Depsgraph):
+    #used to fix the order of critical handlers to be last
+    for task in tasks:
+        for handler_name, func in task._registered_handlers:
+            task.enforce_run_last(handler_name)
+
+class FixOrderTask(Task):
+    functions = {
+        "depsgraph_update_pre": fixorder,
+        "frame_change_pre": fixorder,
+        "load_pre": fixorder
+    }
+
+
 tasks = {
+    FixOrderTask,
     CustomPropertiesTask,
     UDPClientTasks, #This MUST be last so everything above it is allowed to run
 }
