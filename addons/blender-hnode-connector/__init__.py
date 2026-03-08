@@ -33,7 +33,7 @@ def fixorder(scene: bpy.types.Scene, depsgraph: bpy.types.Depsgraph):
     #used to fix the order of critical handlers to be last
     for task in tasks:
         for handler_name, func in task._registered_handlers:
-            task.enforce_run_last(handler_name)
+            task.enforce_run_last(tasks, handler_name)
 
 class FixOrderTask(Task):
     functions = {

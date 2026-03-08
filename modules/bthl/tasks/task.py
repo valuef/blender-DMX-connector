@@ -56,7 +56,8 @@ class Task:
     def enforce_run_last(cls, handler_name):
         """Move the specified handler to the end of the list to ensure it runs last"""
         handlers = getattr(bpy.app.handlers, handler_name)
-        for name, func in cls._registered_handlers:
-            if name == handler_name and func in handlers:
-                handlers.remove(func)
-                handlers.append(func)
+        if hasattr(cls, "_registered_handlers"):
+            for name, func in cls._registered_handlers:
+                if name == handler_name and func in handlers:
+                    handlers.remove(func)
+                    handlers.append(func)

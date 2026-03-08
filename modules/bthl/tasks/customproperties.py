@@ -17,7 +17,7 @@ def handleobjectproperties(object: bpy.types.Object):
                 try:
                     prop_ui = object.id_properties_ui(K)
                 except TypeError: # does not support ui data
-                    print("No UI data for property:", K)
+                    #print("No UI data for property:", K)
                     continue
                 dict = prop_ui.as_dict()
                 dict["value"] = object[K]
