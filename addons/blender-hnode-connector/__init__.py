@@ -32,13 +32,15 @@ classes = {
 def fixorder(scene: bpy.types.Scene, depsgraph: bpy.types.Depsgraph):
     #used to fix the order of critical handlers to be last
     for task in tasks:
+        #print(f"Checking handlers for {task.__name__}")
         for handler_name, func in task._registered_handlers:
-            task.enforce_run_last(tasks, handler_name)
+            #print(f"Handler {handler_name}: {func}")
+            task.enforce_run_last(task, handler_name)
     
     #print out the function order in frame_change_post
-    print("Handler order for frame_change_post:")
-    for func in bpy.app.handlers.frame_change_post:
-        print(func)
+    #print("Handler order for frame_change_post:")
+    #for func in bpy.app.handlers.frame_change_post:
+    #    print(func)
 
 class FixOrderTask(Task):
     functions = {
@@ -47,12 +49,12 @@ class FixOrderTask(Task):
         "load_pre": fixorder
     }
 
-
-tasks = {
+#This is maintained as an array to keep order
+tasks = [
     FixOrderTask,
     CustomPropertiesTask,
     UDPClientTasks, #This MUST be last so everything above it is allowed to run
-}
+]
 
 def register():
     for cls in classes:
