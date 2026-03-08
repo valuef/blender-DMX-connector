@@ -34,6 +34,11 @@ def fixorder(scene: bpy.types.Scene, depsgraph: bpy.types.Depsgraph):
     for task in tasks:
         for handler_name, func in task._registered_handlers:
             task.enforce_run_last(tasks, handler_name)
+    
+    #print out the function order in frame_change_post
+    print("Handler order for frame_change_post:")
+    for func in bpy.app.handlers.frame_change_post:
+        print(func)
 
 class FixOrderTask(Task):
     functions = {
