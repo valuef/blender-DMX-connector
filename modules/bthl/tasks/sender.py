@@ -35,7 +35,7 @@ def send_udp_packet(ip, port, message, id = 0):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         sock.sendto(message, (ip, port))
-        print(f"Sent message to {ip}:{port} (ID: {id})")
+        #print(f"Sent message to {ip}:{port} (ID: {id})")
     except Exception as e:
         print(f"Error sending message: {e}")
     finally:

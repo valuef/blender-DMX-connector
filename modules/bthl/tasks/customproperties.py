@@ -86,7 +86,6 @@ def handleobjectproperties(object: bpy.types.Object):
                     #handle data blocks
                     #Text os executed as python code with finalChannel passed in
                     elif typ == bpy.types.Text:
-                        #print("detected text")
                         #exec the text block as python
                         textblock: bpy.types.Text = value
                         local_dict = {}
@@ -135,7 +134,6 @@ def handleobjectproperties(object: bpy.types.Object):
 
 def update_custom_properties(scene: bpy.types.Scene, depsgraph: bpy.types.Depsgraph):
     bad_obj_types = ['CAMERA','LAMP','ARMATURE']
-    print("UPDATING DMX PROPERTIES")
     for obj in bpy.data.objects:
         if obj.type in bad_obj_types:
             continue
