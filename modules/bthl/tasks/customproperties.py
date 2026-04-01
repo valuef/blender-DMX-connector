@@ -84,16 +84,19 @@ def handleobjectproperties(object: bpy.types.Object):
                         for i in range(len(dmx)):
                             set_channel_value(finalChannel + i, dmx[i])
                     #handle data blocks
+
                     #Text os executed as python code with finalChannel passed in
                     elif typ == bpy.types.Text:
                         #exec the text block as python
                         textblock: bpy.types.Text = value
-                        local_dict = {}
-                        #pass in the channel index
-                        local_dict["finalChannel"] = finalChannel
-                        #pass along the object we are referencing
-                        local_dict["object"] = object
-                        exec(textblock.as_string(), {}, local_dict)
+                        globals_dict = {
+                            #"__builtins__": None,
+                            "finalChannel": finalChannel, #pass in the channel index
+                            "object": object,             #pass along the object we are referencing
+                        }
+
+                        exec(textblock.as_string(), globals_dict)
+
                     #objects are treated as directional pointers for pan/tilt
                     elif typ == bpy.types.Object:
                         target_obj: bpy.types.Object = value
